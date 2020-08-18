@@ -1,0 +1,17 @@
+type Admin {
+    _id: String!
+    login: String!
+}
+
+type Query {
+    admin: Admin!
+}
+
+type Mutation {
+    loginAdmin(data: AdminLoginInput!): String!
+}
+
+input AdminLoginInput {
+    login: String!
+    password: String!
+}
