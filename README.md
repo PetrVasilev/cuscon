@@ -15,13 +15,13 @@ ADMIN_SECRET="admin-secret"
 ADMIN_LOGIN="admin@ityakutia.com"
 ADMIN_PASSWORD="QWErty123"
 ```
-#### Запуск клиента
+##### Запуск клиента
 ```
 cd client/
 npm install
 npm start
 ```
-### Запуск панели администратора
+##### Запуск панели администратора
 ```
 cd admin/
 npm install
