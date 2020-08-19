@@ -18,8 +18,7 @@ npm start
 PORT=3000
 MONGO="mongodb://localhost:27017/cuscon"
 USER_SECRET="user-secret"
-ADMIN_SECRET="admin-secret"
-ADMIN_LOGIN="admin@ityakutia.com"
+ADMIN_EMAIL="admin@ityakutia.com"
 ADMIN_PASSWORD="QWErty123"
 ```
 

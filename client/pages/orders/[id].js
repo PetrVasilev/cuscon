@@ -4,7 +4,7 @@ import moment from 'moment'
 import { useMutation, useQuery } from '@apollo/client'
 import Router from 'next/router'
 
-import { GET_ORDER, FINISH_ORDER } from '../../gqls/order'
+import { GET_ORDER, GET_ORDERS, FINISH_ORDER, DELETE_ORDER_ADMIN } from '../../gqls/order'
 import { CREATE_REQUEST, GET_USER_REQUESTS } from '../../gqls/request'
 import Padding from '../../components/Padding'
 import Textarea from '../../components/Textarea'
@@ -33,6 +33,10 @@ const View = styled.div`
         max-width: 400px;
         margin-bottom: 20px;
         object-fit: contain;
+
+        @media only screen and (max-width: 500px) {
+            width: 100%;
+        }
     }
 
     .description {
@@ -50,6 +54,13 @@ const View = styled.div`
     .success {
         color: green;
         font-weight: 400;
+    }
+
+    .delete-btn {
+        background: white;
+        border: 1px solid darkred;
+        color: darkred;
+        margin-top: 20px;
     }
 `
 
@@ -91,6 +102,34 @@ const Order = ({ order }) => {
             setError('Не удалось отправить запрос, попробуйте еще раз')
         }
     })
+    const [deleteOrderAdmin, { loading: deletingOrder }] = useMutation(DELETE_ORDER_ADMIN, {
+        onCompleted: () => {
+            Router.replace('/')
+        },
+        onError: (err) => {
+            console.error(err)
+            alert('Не удалось удалить')
+        },
+        update: (cache, { data }) => {
+            if (data && data.deleteOrderAdmin) {
+                try {
+                    const { orders } = cache.readQuery({
+                        query: GET_ORDERS,
+                        variables: { where: { status: 'NEW' } }
+                    })
+                    cache.writeQuery({
+                        query: GET_ORDERS,
+                        variables: { where: { status: 'NEW' } },
+                        data: {
+                            orders: orders.filter((item) => item._id !== order._id)
+                        }
+                    })
+                } catch (err) {
+                    console.error(err)
+                }
+            }
+        }
+    })
 
     if (!order) return null
 
@@ -105,6 +144,16 @@ const Order = ({ order }) => {
     const handleFinishOrder = () => {
         if (confirm('Точно отправить на приемку?')) {
             finishOrder({
+                variables: {
+                    where: { _id: order._id }
+                }
+            })
+        }
+    }
+
+    const handleDeleteAdmin = () => {
+        if (confirm('Удалить?')) {
+            deleteOrderAdmin({
                 variables: {
                     where: { _id: order._id }
                 }
@@ -130,6 +179,15 @@ const Order = ({ order }) => {
                     <NameValue label="Срок" value={moment(order.deadline).format('DD.MM.YYYY')} />
                 )}
                 <NameValue last label="Заказчик" value={order.creator.name} />
+                {user && user.isAdmin && (
+                    <Button
+                        loading={deletingOrder}
+                        onClick={handleDeleteAdmin}
+                        className="delete-btn"
+                    >
+                        Удалить
+                    </Button>
+                )}
             </View>
             {user && (
                 <View style={{ marginBottom: 15 }}>

@@ -1,0 +1,35 @@
+scalar DateTime
+
+type Request {
+    _id: String!
+    comment: String
+    created: DateTime!
+    user: User!
+    order: Order!
+    status: RequestStatus!
+}
+
+type Query {
+    orderRequests(where: OrderWhereInput): [Request!]!
+    userRequests: [Request!]!
+}
+
+type Mutation {
+    createRequest(where: OrderWhereInput!, data: RequestCreateInput): Request!
+    acceptRequest(where: RequestWhereInput!): Request!
+    deniedRequest(where: RequestWhereInput!): Request!
+}
+
+input RequestCreateInput {
+    comment: String
+}
+
+input RequestWhereInput {
+    _id: String!
+}
+
+enum RequestStatus {
+    NEW
+    ACCEPTED
+    DENIED
+}

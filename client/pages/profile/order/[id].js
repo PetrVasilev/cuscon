@@ -32,6 +32,10 @@ const View = styled.div`
         max-width: 400px;
         margin-bottom: 20px;
         object-fit: contain;
+
+        @media only screen and (max-width: 500px) {
+            width: 100%;
+        }
     }
 
     .description {

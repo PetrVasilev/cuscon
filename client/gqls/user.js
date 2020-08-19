@@ -19,6 +19,7 @@ export const EDIT_USER_PASSWORD = gql`
             name
             email
             created
+            isAdmin
         }
     }
 `
@@ -30,6 +31,7 @@ export const GET_USER = gql`
             name
             email
             created
+            isAdmin
         }
     }
 `

@@ -207,3 +207,28 @@ export const CANCEL_FINISH_ORDER = gql`
         }
     }
 `
+
+export const DELETE_ORDER_ADMIN = gql`
+    mutation($where: OrderWhereInput!) {
+        deleteOrderAdmin(where: $where) {
+            _id
+            title
+            description
+            price
+            image
+            status
+            deadline
+            created
+            creator {
+                _id
+                name
+            }
+            freelancer {
+                _id
+                name
+                email
+            }
+            requestsCount
+        }
+    }
+`

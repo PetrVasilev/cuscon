@@ -5,6 +5,7 @@ type User {
     email: String!
     name: String!
     created: DateTime
+    isAdmin: Boolean
 }
 
 type Query {

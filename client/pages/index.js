@@ -17,6 +17,11 @@ const View = styled.div`
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
+
+        @media only screen and (max-width: 350px) {
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
 
     .no-data {
@@ -34,6 +39,10 @@ const View = styled.div`
 const Title = styled.div`
     font-size: 18px;
     font-weight: 400;
+
+    @media only screen and (max-width: 350px) {
+        margin-bottom: 12px;
+    }
 `
 
 const Main = () => {

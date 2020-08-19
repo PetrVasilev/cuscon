@@ -64,6 +64,13 @@ module.exports = {
             if (!exist) throw new Error('not-found')
             return await Order.findByIdAndUpdate(where._id, { deleted: true }, { new: true })
         },
+        deleteOrderAdmin: async (_, { where }, { authUser }) => {
+            const permission = await authUser()
+            if (!permission) throw new Error('no-access')
+            if (!permission.isAdmin) throw new Error('no-access')
+            const order = await Order.findByIdAndUpdate(where._id, { deleted: true }, { new: true })
+            return order
+        },
         finishOrder: async (_, { where }, { authUser }) => {
             const permission = await authUser()
             if (!permission) throw new Error('no-access')

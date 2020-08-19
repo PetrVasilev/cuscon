@@ -4,7 +4,7 @@ const dotenv = require('dotenv')
 const express = require('express')
 
 const resolvers = require('./resolvers')
-const { admin, user } = require('./utils/auth')
+const { user } = require('./utils/auth')
 
 dotenv.config()
 
@@ -25,7 +25,6 @@ const server = new GraphQLServer({
     context: ({ request }) => {
         const { authorization } = request.headers
         return {
-            authAdmin: () => admin(authorization),
             authUser: () => user(authorization)
         }
     }
@@ -48,7 +47,7 @@ server.start(
         debug: process.env.NODE_ENV === 'production' ? false : true
     },
     () => {
-        require('./models/Admin').initDB()
         console.log(`SERVER: started on port ${port}`)
+        require('./models/User').initDB()
     }
 )
