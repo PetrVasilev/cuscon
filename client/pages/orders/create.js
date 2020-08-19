@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { useMutation } from '@apollo/client'
 import InputMask from 'react-input-mask'
 import Router from 'next/router'
+import moment from 'moment'
 
 import Input from '../../components/Input'
 import Button from '../../components/Button'
@@ -69,21 +70,23 @@ const CreateOrder = () => {
         },
         update: (cache, { data }) => {
             if (data && data.createOrder) {
-                const { orders } = cache.readQuery({
-                    query: GET_ORDERS,
-                    variables: {
-                        where: { status: 'NEW' }
-                    }
-                })
-                cache.writeQuery({
-                    query: GET_ORDERS,
-                    variables: {
-                        where: { status: 'NEW' }
-                    },
-                    data: {
-                        orders: [data.createOrder, ...orders]
-                    }
-                })
+                try {
+                    const { orders } = cache.readQuery({
+                        query: GET_ORDERS,
+                        variables: {
+                            where: { status: 'NEW' }
+                        }
+                    })
+                    cache.writeQuery({
+                        query: GET_ORDERS,
+                        variables: {
+                            where: { status: 'NEW' }
+                        },
+                        data: {
+                            orders: [data.createOrder, ...orders]
+                        }
+                    })
+                } catch (err) {}
             }
         }
     })
@@ -95,11 +98,18 @@ const CreateOrder = () => {
         const price = e.target.price.value
         const deadline = e.target.deadline.value ? e.target.deadline.value : undefined
         const image = e.target.image.files ? e.target.image.files[0] : undefined
+        let deadlineDate
+        if (deadline) {
+            deadlineDate = moment(deadline, 'DD.MM.YYYY')
+            if (!deadlineDate.isValid()) {
+                return setError('Введите правильную дату срока')
+            }
+        }
         const data = {
             title,
             description,
             price,
-            deadline,
+            deadline: deadlineDate,
             image
         }
         createOrder({
