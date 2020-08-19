@@ -1,6 +1,7 @@
 const { GraphQLServer } = require('graphql-yoga')
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
+const express = require('express')
 
 const resolvers = require('./resolvers')
 const { admin, user } = require('./utils/auth')
@@ -36,6 +37,7 @@ server.express.use((_, res, next) => {
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
     next()
 })
+server.express.use('/uploads', express.static(__dirname + '/../uploads/'))
 
 server.start(
     {

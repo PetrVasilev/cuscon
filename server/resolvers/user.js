@@ -21,7 +21,7 @@ module.exports = {
             const token = jwt.sign({ _id: user._id }, process.env.USER_SECRET)
             return token
         },
-        registerUser: async () => {
+        registerUser: async (_, { data }) => {
             const { email, password, name } = data
             const exist = await User.findOne({ email })
             if (exist) throw new Error('already-exist')

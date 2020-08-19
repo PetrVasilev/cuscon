@@ -1,0 +1,85 @@
+scalar DateTime
+scalar Upload
+
+type Order {
+    _id: String!
+    title: String!
+    description: String!
+    price: String
+    image: String
+    deniedComment: String
+    status: OrderStatus!
+    deadline: DateTime
+    created: DateTime!
+    creator: User!
+    freelancer: User
+    requestsCount: Int
+}
+
+type Request {
+    _id: String!
+    comment: String
+    created: DateTime!
+    user: User!
+    order: Order!
+    status: RequestStatus!
+}
+
+type Query {
+    order(where: OrderWhereInput!): Order!
+    orders(skip: Int, limit: Int, where: OrdersWhereInput): [Order!]!
+    creatorOrders(where: OrdersWhereInput): [Order!]!
+    freelancerOrders(where: OrdersWhereInput): [Order!]!
+    orderRequests(where: OrderWhereInput!): [Request!]!
+    userRequests: [Request!]!
+}
+
+type Mutation {
+    createOrder(data: OrderCreateInput!): Order!
+    editOrder(data: OrderEditInput!, where: OrderWhereInput!): Order!
+    deleteOrder(where: OrderWhereInput!): Order!
+    createRequest(where: OrderWhereInput!, data: RequestCreateInput): Request!
+}
+
+input OrderCreateInput {
+    title: String!
+    description: String!
+    price: String
+    image: Upload
+    deadline: DateTime
+}
+
+input OrderEditInput {
+    title: String
+    description: String
+    price: String
+    image: Upload
+    deniedComment: String
+    status: OrderStatus
+    deadline: DateTime
+}
+
+input OrdersWhereInput {
+    status: OrderStatus
+}
+
+input OrderWhereInput {
+    _id: String!
+}
+
+input RequestCreateInput {
+    comment: String
+}
+
+enum OrderStatus {
+    NEW
+    IN_PROGRESS
+    ACCEPT_WAITING
+    FINISHED
+}
+
+enum RequestStatus {
+    NEW
+    ACCEPTED
+    DENIED
+}
