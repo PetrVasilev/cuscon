@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import moment from 'moment'
 import { useMutation, useQuery } from '@apollo/client'
+import Router from 'next/router'
 
-import { GET_ORDER } from '../../gqls/order'
+import { GET_ORDER, FINISH_ORDER } from '../../gqls/order'
 import { CREATE_REQUEST, GET_USER_REQUESTS } from '../../gqls/request'
 import Padding from '../../components/Padding'
 import Textarea from '../../components/Textarea'
@@ -81,6 +82,15 @@ const Order = ({ order }) => {
             }
         }
     })
+    const [finishOrder, { loading: finishing }] = useMutation(FINISH_ORDER, {
+        onCompleted: () => {
+            Router.reload()
+        },
+        onError: (err) => {
+            console.error(err)
+            setError('Не удалось отправить запрос, попробуйте еще раз')
+        }
+    })
 
     if (!order) return null
 
@@ -90,6 +100,16 @@ const Order = ({ order }) => {
         const data = { comment }
         setError(null)
         createRequest({ variables: { where: { _id: order._id }, data } })
+    }
+
+    const handleFinishOrder = () => {
+        if (confirm('Точно отправить на приемку?')) {
+            finishOrder({
+                variables: {
+                    where: { _id: order._id }
+                }
+            })
+        }
     }
 
     const userRequests = userRequestsData ? userRequestsData.userRequests : []
@@ -116,7 +136,26 @@ const Order = ({ order }) => {
                     <div style={{ marginBottom: 12 }} className="title">
                         Откликнуться
                     </div>
-                    {sent || userDidRequest ? (
+                    {order.status === 'FINISHED' ? (
+                        <div style={{ color: 'green' }}>Вы выполнили этот заказ</div>
+                    ) : order.status === 'ACCEPT_WAITING' ? (
+                        <div style={{ color: 'orange' }}>Ожидание приемки</div>
+                    ) : userDidRequest ? (
+                        userDidRequest.status === 'ACCEPTED' ? (
+                            <>
+                                <div className="success">Вы получили заказ</div>
+                                <Button
+                                    loading={finishing}
+                                    onClick={handleFinishOrder}
+                                    style={{ marginTop: 15 }}
+                                >
+                                    Отправить на приемку
+                                </Button>
+                            </>
+                        ) : (
+                            <div className="success">Вы откликнулись на заказ</div>
+                        )
+                    ) : sent ? (
                         <div className="success">Вы откликнулись на заказ</div>
                     ) : (
                         <form onSubmit={handleSubmit}>

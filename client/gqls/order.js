@@ -18,6 +18,7 @@ export const CREATE_ORDER = gql`
             freelancer {
                 _id
                 name
+                email
             }
             requestsCount
         }
@@ -50,6 +51,7 @@ export const GET_ORDERS = gql`
             freelancer {
                 _id
                 name
+                email
             }
             requestsCount
         }
@@ -74,6 +76,7 @@ export const GET_ORDER = gql`
             freelancer {
                 _id
                 name
+                email
             }
             requestsCount
         }
@@ -98,6 +101,7 @@ export const GET_CREATOR_ORDERS = gql`
             freelancer {
                 _id
                 name
+                email
             }
             requestsCount
         }
@@ -122,6 +126,82 @@ export const GET_FREELANCER_ORDERS = gql`
             freelancer {
                 _id
                 name
+                email
+            }
+            requestsCount
+        }
+    }
+`
+
+export const FINISH_ORDER = gql`
+    mutation($where: OrderWhereInput!) {
+        finishOrder(where: $where) {
+            _id
+            title
+            description
+            price
+            image
+            status
+            deadline
+            created
+            creator {
+                _id
+                name
+            }
+            freelancer {
+                _id
+                name
+                email
+            }
+            requestsCount
+        }
+    }
+`
+
+export const CONFIRM_FINISH_ORDER = gql`
+    mutation($where: OrderWhereInput!) {
+        confirmFinishOrder(where: $where) {
+            _id
+            title
+            description
+            price
+            image
+            status
+            deadline
+            created
+            creator {
+                _id
+                name
+            }
+            freelancer {
+                _id
+                name
+                email
+            }
+            requestsCount
+        }
+    }
+`
+
+export const CANCEL_FINISH_ORDER = gql`
+    mutation($where: OrderWhereInput!) {
+        cancelFinishOrder(where: $where) {
+            _id
+            title
+            description
+            price
+            image
+            status
+            deadline
+            created
+            creator {
+                _id
+                name
+            }
+            freelancer {
+                _id
+                name
+                email
             }
             requestsCount
         }

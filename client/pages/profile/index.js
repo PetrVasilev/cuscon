@@ -1,9 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import Link from 'next/link'
-import { useQuery } from '@apollo/client'
 
-import Spinner from '../../components/Spinner'
 import Padding from '../../components/Padding'
 import NameValue from '../../components/NameValue'
 import { useUser } from '../../utils/hooks'
@@ -89,7 +87,6 @@ const Order = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
     margin-bottom: 10px;
 
     &:last-child {
@@ -101,6 +98,7 @@ const Order = styled.div`
         flex-direction: row;
         align-items: center;
         padding-right: 10px;
+        max-width: 400px;
 
         .requests {
             display: flex;
@@ -139,19 +137,15 @@ const Order = styled.div`
             opacity: 0.8;
         }
     }
+
+    .request-order-status {
+        font-size: 12px;
+    }
 `
 
-const Profile = () => {
+const Profile = ({ userRequests = [], creatorOrders = [] }) => {
     const { user } = useUser()
-
-    const { data: creatorOrdersData, loading: creatorOrdersLoading } = useQuery(GET_CREATOR_ORDERS)
-    const { data: userRequestsData, loading: userRequestsLoading } = useQuery(GET_USER_REQUESTS)
-
     if (!user) return null
-
-    const userRequests = userRequestsData ? userRequestsData.userRequests : []
-    const creatorOrders = creatorOrdersData ? creatorOrdersData.creatorOrders : []
-
     return (
         <Padding disableInMobile>
             <View>
@@ -170,26 +164,34 @@ const Profile = () => {
                 <div className="orders">
                     <Card>
                         <div className="title">Отклики на заказы</div>
-                        {userRequestsLoading ? (
-                            <Spinner />
-                        ) : userRequests.length === 0 ? (
+                        {userRequests.filter((item) => item.status !== 'DENIED').length === 0 ? (
                             <div className="no-data">Вы еще не откликнулись на заказ</div>
                         ) : (
-                            userRequests.map((item) => (
-                                <Order key={item._id}>
-                                    <Link href={`/orders/[id]`} as={`/orders/${item.order._id}`}>
-                                        <div className="name">{item.order.title}</div>
-                                    </Link>
-                                    <div className="status">{getRequestStatus(item.status)}</div>
-                                </Order>
-                            ))
+                            userRequests
+                                .filter((item) => item.status !== 'DENIED')
+                                .map((item) => (
+                                    <Order key={item._id}>
+                                        <div className="request-left">
+                                            <Link
+                                                href={`/orders/[id]`}
+                                                as={`/orders/${item.order._id}`}
+                                            >
+                                                <div className="name">{item.order.title}</div>
+                                            </Link>
+                                            <div className="request-order-status">
+                                                {getStatus(item.order.status)}
+                                            </div>
+                                        </div>
+                                        <div className="status">
+                                            {getRequestStatus(item.status)}
+                                        </div>
+                                    </Order>
+                                ))
                         )}
                     </Card>
                     <Card style={{ marginTop: 15 }}>
                         <div className="title">Заказы</div>
-                        {creatorOrdersLoading ? (
-                            <Spinner />
-                        ) : creatorOrders.length === 0 ? (
+                        {creatorOrders.length === 0 ? (
                             <div className="no-data">У вас нет заказов в качестве заказчика</div>
                         ) : (
                             creatorOrders.map((item) => (
@@ -227,7 +229,7 @@ const getStatus = (status) => {
         return <span style={{ color: 'gray' }}>В работе</span>
     }
     if (status === 'ACCEPT_WAITING') {
-        return <span style={{ color: 'orange' }}>На приемке</span>
+        return <span style={{ color: 'orange' }}>Ожидание приемки</span>
     }
     if (status === 'FINISHED') {
         return <span style={{ color: 'green' }}>Выполнен</span>
@@ -243,6 +245,23 @@ const getRequestStatus = (status) => {
     }
     if (status === 'DENIED') {
         return <span style={{ color: 'red' }}>Отклонен</span>
+    }
+}
+
+Profile.getInitialProps = async ({ apolloClient }) => {
+    const [{ data: creatorOrdersData }, { data: userRequestsData }] = await Promise.all([
+        apolloClient.query({
+            query: GET_CREATOR_ORDERS,
+            fetchPolicy: 'network-only'
+        }),
+        apolloClient.query({
+            query: GET_USER_REQUESTS,
+            fetchPolicy: 'network-only'
+        })
+    ])
+    return {
+        userRequests: userRequestsData ? userRequestsData.userRequests : [],
+        creatorOrders: creatorOrdersData ? creatorOrdersData.creatorOrders : []
     }
 }
 

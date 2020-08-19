@@ -63,6 +63,30 @@ module.exports = {
             const exist = await Order.findOne({ creator: permission._id, _id: where._id })
             if (!exist) throw new Error('not-found')
             return await Order.findByIdAndUpdate(where._id, { deleted: true }, { new: true })
+        },
+        finishOrder: async (_, { where }, { authUser }) => {
+            const permission = await authUser()
+            if (!permission) throw new Error('no-access')
+            const order = await Order.findOne({ _id: where._id, freelancer: permission._id })
+            if (!order) throw new Error('not-found')
+            order.status = 'ACCEPT_WAITING'
+            return await order.save()
+        },
+        confirmFinishOrder: async (_, { where }, { authUser }) => {
+            const permission = await authUser()
+            if (!permission) throw new Error('no-access')
+            const order = await Order.findOne({ _id: where._id, creator: permission._id })
+            if (!order) throw new Error('not-found')
+            order.status = 'FINISHED'
+            return await order.save()
+        },
+        cancelFinishOrder: async (_, { where }, { authUser }) => {
+            const permission = await authUser()
+            if (!permission) throw new Error('no-access')
+            const order = await Order.findOne({ _id: where._id, creator: permission._id })
+            if (!order) throw new Error('not-found')
+            order.status = 'IN_PROGRESS'
+            return await order.save()
         }
     },
     Population: {

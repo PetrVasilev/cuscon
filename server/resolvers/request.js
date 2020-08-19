@@ -33,6 +33,35 @@ module.exports = {
                 order: where._id
             })
             return await request.save()
+        },
+        acceptRequest: async (_, { where }, { authUser }) => {
+            const permission = await authUser()
+            if (!permission) throw new Error('no-access')
+            const request = await Request.findById(where._id)
+            if (!request) throw new Error('not-found')
+            const order = await Order.findOne({ _id: request.order, creator: permission._id })
+            if (!order) throw new Error('not-found')
+            request.status = 'ACCEPTED'
+            order.freelancer = request.user
+            order.status = 'IN_PROGRESS'
+            await Promise.all([
+                order.save(),
+                Request.updateMany(
+                    { order: order._id, _id: { $ne: request._id } },
+                    { status: 'DENIED' }
+                )
+            ])
+            return await request.save()
+        },
+        deniedRequest: async (_, { where }, { authUser }) => {
+            const permission = await authUser()
+            if (!permission) throw new Error('no-access')
+            const request = await Request.findById(where._id)
+            if (!request) throw new Error('not-found')
+            const order = await Order.findOne({ _id: request.order, creator: permission._id })
+            if (!order) throw new Error('not-found')
+            request.status = 'DENIED'
+            return await request.save()
         }
     },
     Population: {

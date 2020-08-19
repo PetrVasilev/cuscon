@@ -30,7 +30,7 @@ type Query {
     orders(skip: Int, limit: Int, where: OrdersWhereInput): [Order!]!
     creatorOrders(where: OrdersWhereInput): [Order!]!
     freelancerOrders(where: OrdersWhereInput): [Order!]!
-    orderRequests(where: OrderWhereInput!): [Request!]!
+    orderRequests(where: OrderWhereInput): [Request!]!
     userRequests: [Request!]!
 }
 
@@ -39,6 +39,11 @@ type Mutation {
     editOrder(data: OrderEditInput!, where: OrderWhereInput!): Order!
     deleteOrder(where: OrderWhereInput!): Order!
     createRequest(where: OrderWhereInput!, data: RequestCreateInput): Request!
+    acceptRequest(where: RequestWhereInput!): Request!
+    deniedRequest(where: RequestWhereInput!): Request!
+    finishOrder(where: OrderWhereInput!): Order!
+    confirmFinishOrder(where: OrderWhereInput!): Order!
+    cancelFinishOrder(where: OrderWhereInput!): Order!
 }
 
 input OrderCreateInput {
@@ -69,6 +74,10 @@ input OrderWhereInput {
 
 input RequestCreateInput {
     comment: String
+}
+
+input RequestWhereInput {
+    _id: String!
 }
 
 enum OrderStatus {
