@@ -6,7 +6,7 @@ import fetch from 'isomorphic-unfetch'
 import cookie from 'cookie'
 
 export const host =
-    process.env.NODE_ENV === 'production' ? `http://cuscon.ru` : 'http://localhost:3000'
+    process.env.NODE_ENV === 'production' ? `https://cuscon.ru` : 'http://localhost:3000'
 
 export default function createApolloClient(initialState, ctx) {
     const isServer = typeof window === 'undefined'
